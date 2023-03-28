@@ -23,8 +23,7 @@
         }
     }
 
-    function bruh1() {
-        userArr = []
+    function update_fromToBoth() {
         const lines = textArea1Value.split("\n").map(line=>line.trimEnd()).filter(line=>line.length)
 
         fromToBoth = {}
@@ -36,6 +35,13 @@
             fromToBoth[both.from] = both
         }
 
+        return arrOfObj
+    }
+
+    function bruh1() {
+        userArr = []
+
+        const arrOfObj = update_fromToBoth()
         const testArr = arrOfObj.map(obj=>`${obj.from} : `)
         shuffleArray(testArr)
 
@@ -52,6 +58,8 @@
     }
 
     function bruh2() {
+
+        update_fromToBoth()
 
         const lines = textArea2Value.split("\n").map(line=>line.trimEnd()).filter(line=>line.length)
 
@@ -131,6 +139,7 @@
 <style>
     * {
         font-family: 'Fira Code', monospace;
+        white-space: pre;
     }
     p {
         margin-top: 0.1em;
