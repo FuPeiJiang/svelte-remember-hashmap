@@ -6,12 +6,17 @@
 </svelte:head>
 
 <script>
-    let textArea1Value
-    let textArea2Value
     let fromToBoth
     let userArr = []
     let incorrectCount
     let incorrectLeft
+
+    let arrOfTuple1 = []
+    const sizeOfSide1 = [15, 15]
+    let arrOfTuple2
+    let sizeOfRightSide2 = 15
+    let visible = true
+    let permaVisible = true
 
     /* Randomize array in-place using Durstenfeld shuffle algorithm */
     function shuffleArray(array) {
@@ -24,13 +29,14 @@
     }
 
     function update_fromToBoth() {
-        const lines = textArea1Value.split("\n").map(line=>line.trimEnd()).filter(line=>line.length)
+        const lines = arrOfTuple1.filter(tuple=>tuple[0].trim() && tuple[1].trim())
 
         fromToBoth = {}
         const arrOfObj = []
         for (const line_ of lines) {
-            const pos_colon = line_.indexOf(" : ")
-            const both = {from:line_.slice(0,pos_colon),to:line_.slice(pos_colon + 3),line_}
+            const from = line_[0].trim()
+            const to = line_[1].trim()
+            const both = {from,to,line_:`${from} : ${to}`}
             arrOfObj.push(both)
             fromToBoth[both.from] = both
         }
@@ -42,37 +48,36 @@
         userArr = []
 
         const arrOfObj = update_fromToBoth()
-        const testArr = arrOfObj.map(obj=>`${obj.from} : `)
+        const testArr = arrOfObj.map(obj=>[obj.from,""])
         shuffleArray(testArr)
 
-        textArea2Value = testArr.join("\n")
-
+        arrOfTuple2 = testArr
+        visible = false
+        permaVisible = false
     }
     function keyDown1(event) {
         if (event.key === "Enter") {
-            if (!event.shiftKey) {
-                event.preventDefault()
-                bruh1()
-            }
+            event.preventDefault()
+            bruh1()
         }
     }
 
     function bruh2() {
 
         update_fromToBoth()
-
-        const lines = textArea2Value.split("\n").map(line=>line.trimEnd()).filter(line=>line.length)
+        const lines = arrOfTuple2
 
         const arrOfObj = []
         for (const line_ of lines) {
-            const pos_colon = line_.indexOf(" : ")
-            arrOfObj.push({from:line_.slice(0,pos_colon),to:line_.slice(pos_colon + 3)})
+            const from = line_[0].trim()
+            const to = line_[1].trim()
+            arrOfObj.push({from,to,line_:`${from} : ${to}`})
         }
 
         const tempArr = []
         let tempIncorrectCount = 0
         for (const idx in arrOfObj) {
-            const line_ = lines[idx]
+            const line_ = arrOfObj[idx].line_
             const obj = arrOfObj[idx]
 
             const correct = fromToBoth[obj.from].to === obj.to
@@ -88,10 +93,8 @@
 
     function keyDown2(event) {
         if (event.key === "Enter") {
-            if (!event.shiftKey) {
-                event.preventDefault()
-                bruh2()
-            }
+            event.preventDefault()
+            bruh2()
         }
     }
 
@@ -105,35 +108,85 @@
         }
     }
 
+    function handleInput1(event,idx1,idx2) {
+        if (idx1 >= arrOfTuple1.length) {
+            const arr = []
+            if (idx2 === 0) {
+                arr.push(event.target.value, "")
+            } else {
+                arr.push("", event.target.value)
+            }
+            arrOfTuple1.push(arr)
+            arrOfTuple1 = arrOfTuple1
+        } else {
+            arrOfTuple1[idx1][idx2] = event.target.value
+        }
+
+        if (idx2 === 0) {
+            sizeOfSide1[0] = Math.max(15, Math.max(...arrOfTuple1.map(tuple=>tuple[0].length))-2)
+        } else {
+            sizeOfSide1[1] = Math.max(15, Math.max(...arrOfTuple1.map(tuple=>tuple[1].length))-2)
+        }
+
+    }
+
+    function handleInput2(event,idx1,idx2) {
+        arrOfTuple2[idx1][idx2] = event.target.value
+        sizeOfRightSide2 = Math.max(15, Math.max(...arrOfTuple2.map(tuple=>tuple[1].length))-2)
+
+    }
+
 </script>
 
 <div style="display: flex; flex-direction: row;">
-    <textarea on:paste={()=>setTimeout(bruh1,1)} on:keydown={keyDown1} bind:value={textArea1Value} rows="20"></textarea>
-    <button on:click={bruh1}>Button</button>
-    {#if textArea2Value}
-        <textarea on:paste={()=>setTimeout(bruh2,1)} on:keydown={keyDown2} bind:value={textArea2Value} rows="20"></textarea>
+    <table style="align-self: flex-start;{visible?"": " visibility: hidden;"}">
+    <tbody>
+    {#each {length:arrOfTuple1.length+1} as _, idx1}
+    <tr>
+    {#each {length:2} as _, idx2}
+    <td><input type="text" size={sizeOfSide1[idx2]} on:input={event=>handleInput1(event,idx1,idx2)} value={idx1 < arrOfTuple1.length ? arrOfTuple1[idx1][idx2] : ""} on:keydown={keyDown1}></td>
+    {/each}
+    </tr>
+    {/each}
+    </tbody>
+    </table>
+    <button on:click={bruh1}>Test</button>
+    {#if arrOfTuple2}
+    <button on:click={()=>permaVisible=visible=true} on:mouseenter={()=>visible=true} on:mouseleave={()=>permaVisible || (visible=false)}>Peek</button>
+    <table style="align-self: flex-start;">
+    <tbody>
+    {#each {length:arrOfTuple2.length} as _, idx1}
+    <tr>
+    {#each {length:2} as _, idx2}
+    <td><input type="text" size={idx2 === 0 ? sizeOfSide1[idx2] : sizeOfRightSide2} readonly={idx2 === 0} on:input={event=>handleInput2(event,idx1,idx2)} value={idx1 < arrOfTuple2.length ? arrOfTuple2[idx1][idx2] : ""} on:keydown={keyDown2}></td>
+    {/each}
+    </tr>
+    {/each}
+    </tbody>
+    </table>
+    <button on:click={bruh2}>Check</button>
     {/if}
+    {#if userArr.length}
     <div style="display: flex; flex-direction: column;">
-        {#if userArr.length}
-            <p>incorrect count:{incorrectCount}</p>
-            <p>incorrect left:{incorrectLeft}</p>
-            {#each userArr as obj, idx}
+        <p>incorrect count:{incorrectCount}</p>
+        <p>incorrect left:{incorrectLeft}</p>
+        {#each userArr as obj, idx}
 
-                {#if obj.surely}
-                    {#if obj.surely === "right"}
-                        <p style="background-color: lightgreen;">{obj.line_}</p>
-                    {:else}
-                        <p style="background-color: red;">{obj.line_}</p>
-                        <p style="background-color: lightgreen;">{fromToBoth[obj.obj.from].line_}</p>
-                    {/if}
+            {#if obj.surely}
+                {#if obj.surely === "right"}
+                    <p style="background-color: lightgreen;">{obj.line_}</p>
                 {:else}
-                    <button on:click={()=>handleGuessWhat(idx)}>{obj.line_}</button>
+                    <p style="background-color: red;">{obj.line_}</p>
+                    <p style="background-color: lightgreen;">{fromToBoth[obj.obj.from].line_}</p>
                 {/if}
+            {:else}
+                <button on:click={()=>handleGuessWhat(idx)}>{obj.line_}</button>
+            {/if}
 
 
-            {/each}
-        {/if}
+        {/each}
     </div>
+    {/if}
 </div>
 
 <style>
@@ -144,5 +197,15 @@
     p {
         margin-top: 0.1em;
         margin-bottom: 0.1em;
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+    input, td {
+        padding: 0px;
+    }
+    input {
+        box-sizing: border-box;
     }
 </style>
