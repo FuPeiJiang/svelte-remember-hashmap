@@ -136,6 +136,16 @@
 
     }
 
+    function handlePaste(event) {
+        event.preventDefault() //or else probably handleInput1() will kick in
+        const text = event.clipboardData.getData("text/plain").replace(/\r/g,"")
+        // debugger
+        arrOfTuple1 = text.split("\n").map(line=>line.split(" : "))
+        console.log(arrOfTuple1)
+        sizeOfSide1[0] = Math.max(15, Math.max(...arrOfTuple1.map(tuple=>tuple[0].length))-2)
+        sizeOfSide1[1] = Math.max(15, Math.max(...arrOfTuple1.map(tuple=>tuple[1].length))-2)
+    }
+
 </script>
 
 <div style="display: flex; flex-direction: row;">
@@ -144,7 +154,7 @@
     {#each {length:arrOfTuple1.length+1} as _, idx1}
     <tr>
     {#each {length:2} as _, idx2}
-    <td><input type="text" size={sizeOfSide1[idx2]} on:input={event=>handleInput1(event,idx1,idx2)} value={idx1 < arrOfTuple1.length ? arrOfTuple1[idx1][idx2] : ""} on:keydown={keyDown1}></td>
+    <td><input type="text" size={sizeOfSide1[idx2]} on:input={event=>handleInput1(event,idx1,idx2)} value={idx1 < arrOfTuple1.length ? arrOfTuple1[idx1][idx2] : ""} on:keydown={keyDown1} on:paste={handlePaste}></td>
     {/each}
     </tr>
     {/each}
