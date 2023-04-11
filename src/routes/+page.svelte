@@ -6,6 +6,14 @@
 </svelte:head>
 
 <script>
+    import { onMount } from 'svelte';
+
+    let hasNoTap = false
+    onMount(() => {
+        hasNoTap = !("ontouchstart" in document.documentElement);
+    })
+
+
     let fromToBoth
     let userArr = []
     let incorrectCount
@@ -16,7 +24,13 @@
     let arrOfTuple2
     let sizeOfRightSide2 = 15
     let visible = true
-    let permaVisible = false
+    let permaVisible = true
+
+    // let logs = []
+    // function notLog(log) {
+    //     logs.push(log)
+    //     logs=logs
+    // }
 
     /* Randomize array in-place using Durstenfeld shuffle algorithm */
     function shuffleArray(array) {
@@ -148,6 +162,9 @@
 
 </script>
 
+<!-- {#each logs as log} -->
+<!-- <p>{log}</p> -->
+<!-- {/each} -->
 <div style="display: flex; flex-direction: row;">
     <table style="align-self: flex-start;{visible?"": " visibility: hidden;"}">
     <tbody>
@@ -162,7 +179,7 @@
     </table>
     <button on:click={bruh1}>Test</button>
     {#if arrOfTuple2}
-    <button on:click={()=>permaVisible=visible=!permaVisible} on:mouseenter={()=>visible=true} on:mouseleave={()=>permaVisible || (visible=false)}>Peek</button>
+    <button on:click={()=>visible=permaVisible=!permaVisible} on:mouseenter={hasNoTap && (()=>visible=true)} on:mouseleave={hasNoTap && (()=>permaVisible || (visible=false))}>Peek</button>
     <table style="align-self: flex-start;">
     <tbody>
     {#each {length:arrOfTuple2.length} as _, idx1}
