@@ -16,7 +16,7 @@
     let arrOfTuple2
     let sizeOfRightSide2 = 15
     let visible = true
-    let permaVisible = true
+    let permaVisible = false
 
     /* Randomize array in-place using Durstenfeld shuffle algorithm */
     function shuffleArray(array) {
