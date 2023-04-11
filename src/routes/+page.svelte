@@ -162,7 +162,7 @@
     </table>
     <button on:click={bruh1}>Test</button>
     {#if arrOfTuple2}
-    <button on:click={()=>permaVisible=visible=true} on:mouseenter={()=>visible=true} on:mouseleave={()=>permaVisible || (visible=false)}>Peek</button>
+    <button on:click={()=>permaVisible=visible=!permaVisible} on:mouseenter={()=>visible=true} on:mouseleave={()=>permaVisible || (visible=false)}>Peek</button>
     <table style="align-self: flex-start;">
     <tbody>
     {#each {length:arrOfTuple2.length} as _, idx1}
